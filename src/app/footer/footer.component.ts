@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import getYear from 'date-fns/getYear';
 
 @Component({
   selector: 'app-footer',
@@ -9,7 +10,7 @@ export class FooterComponent implements OnInit {
 
   constructor() { }
 
-  footerString: string = '2019'
+  footerString: string = getYear(new Date()).toString();
   
   ngOnInit() {
   }

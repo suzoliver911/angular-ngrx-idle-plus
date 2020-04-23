@@ -9,7 +9,7 @@ export class HeaderComponent implements OnInit {
 
   constructor() { }
 
-  title: string = 'Angular Idle Timeout'
+  title: string = 'Angular Ngrx Idle Plus'
 
   ngOnInit() {
   }

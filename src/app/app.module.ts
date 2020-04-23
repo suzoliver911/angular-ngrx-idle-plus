@@ -12,8 +12,7 @@ import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive'; // this includes the core NgIdleModule but includes keepalive providers for easy wireup
-import { MomentModule } from 'angular2-moment'; // optional, provides moment-style pipes for date formatting
-
+import {DateFnsModule} from 'ngx-date-fns';
 import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
@@ -29,7 +28,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     AppRoutingModule,
     BrowserAnimationsModule,
     NgIdleKeepaliveModule.forRoot(),
-    MomentModule,
+    DateFnsModule.forRoot(),
     HttpClientModule,
     ModalModule.forRoot(),
     FormsModule
