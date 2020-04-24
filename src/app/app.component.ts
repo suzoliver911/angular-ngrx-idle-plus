@@ -1,4 +1,4 @@
-import { Component, ViewChild, TemplateRef, ElementRef, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
@@ -9,103 +9,102 @@ import * as ApplicationActions from './+state/application/actions';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { ModalDirective } from 'ngx-bootstrap/modal';
 import { AppService } from './_services/app.service';
+import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-
   idleState = 'Not started.';
   timedOut = false;
   lastPing?: Date = null;
   title = 'angular-idle-timeout';
   $isLoggedIn: Observable<boolean>;
   sub: Subscription;
+  finalCountdown: number;
 
-  public modalRef: BsModalRef;
+  @ViewChild('content') content: any;
+  childModalRef: NgbModalRef;
 
-  @ViewChild('childModal', {static: false}) childModal: ModalDirective;
-
-  constructor(private idle: Idle, private keepalive: Keepalive, 
-    private router: Router, private modalService: BsModalService, private appService: AppService, private store: Store<fromRoot.State>) {
+  constructor(
+    private idle: Idle,
+    private keepalive: Keepalive,
+    private router: Router,
+    private modalService: NgbModal,
+    private appService: AppService,
+    private store: Store<fromRoot.State>,
+  ) {
     // sets an idle timeout of 5 seconds, for testing purposes.
-    idle.setIdle(15);
+    idle.setIdle(5);
     // sets a timeout period of 5 seconds. after 10 seconds of inactivity, the user will be considered timed out.
     idle.setTimeout(10);
     // sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
     idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 
-    idle.onIdleEnd.subscribe(() => { 
-      this.idleState = 'No longer idle.'
+    idle.onIdleEnd.subscribe(() => {
+      this.idleState = 'No longer idle.';
       console.log(this.idleState);
       this.reset();
     });
-    
+
     idle.onTimeout.subscribe(() => {
-      this.childModal.hide();
+      this.childModalRef.close();
       this.idleState = 'Timed out!';
       this.timedOut = true;
       console.log(this.idleState);
       this.router.navigate(['/']);
     });
-    
+
     idle.onIdleStart.subscribe(() => {
-        this.idleState = 'You\'ve gone idle!'
-        console.log(this.idleState);
-        this.childModal.show();
-    });
-    
-    idle.onTimeoutWarning.subscribe((countdown) => {
-      this.idleState = 'You will time out in ' + countdown + ' seconds!'
+      this.idleState = 'You have gone idle!';
       console.log(this.idleState);
+      this.childModalRef = this.modalService.open(this.content);
+    });
+
+    idle.onTimeoutWarning.subscribe((countdown: number) => {
+      this.idleState = 'You will time out in ' + countdown + ' seconds!';
+      console.log(this.idleState);
+      this.finalCountdown = countdown;
     });
 
     // sets the ping interval to 15 seconds
     keepalive.interval(15);
 
-    keepalive.onPing.subscribe(() => this.lastPing = new Date());
+    keepalive.onPing.subscribe(() => (this.lastPing = new Date()));
 
-    this.appService.getUserLoggedIn().subscribe(userLoggedIn => {
+    this.appService.getUserLoggedIn().subscribe((userLoggedIn) => {
       if (userLoggedIn) {
-        idle.watch()
+        idle.watch();
         this.timedOut = false;
       } else {
         idle.stop();
       }
-    })
-
-    // this.reset();
+    });
   }
 
   ngOnInit() {
-   console.log("Is user logged in: {0}",fromRoot.selectIsLoggedIn);
+    console.log('Is user logged in:', fromRoot.selectIsLoggedIn);
   }
 
   reset() {
     this.idle.watch();
-    //xthis.idleState = 'Started.';
     this.timedOut = false;
   }
 
-  hideChildModal(): void {
-    this.childModal.hide();
+  dismiss() {
+    this.childModalRef.close('hide me');
   }
-
   stay() {
-    this.childModal.hide();
+    this.childModalRef.close('hide me');
     this.reset();
   }
 
   logout() {
-    this.childModal.hide();
+    this.childModalRef.close('hide me');
     this.appService.setUserLoggedIn(false);
     this.router.navigate(['/']);
   }
-
 }
