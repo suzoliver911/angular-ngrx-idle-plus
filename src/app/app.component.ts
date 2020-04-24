@@ -18,6 +18,11 @@ import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
+  // inactivity time in seconds
+  inactivityTime = 15;
+  timeLapsedSinceInactivity = 0;
+  minute: number = this.padZero(0);
+
   idleState = 'Not started.';
   timedOut = false;
   lastPing?: Date = null;
@@ -85,9 +90,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    console.log('Is user logged in:', fromRoot.selectIsLoggedIn);
-  }
+  ngOnInit() {}
 
   reset() {
     this.idle.watch();
