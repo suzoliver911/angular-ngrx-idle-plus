@@ -1,5 +1,10 @@
-import { Component, ViewChild, TemplateRef, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, TemplateRef, ElementRef, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+
+import { Observable, Subscription } from 'rxjs';
+import * as fromRoot from './+state/reducers';
+import * as ApplicationActions from './+state/application/actions';
 
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
@@ -14,19 +19,21 @@ import { AppService } from './_services/app.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   idleState = 'Not started.';
   timedOut = false;
   lastPing?: Date = null;
   title = 'angular-idle-timeout';
+  $isLoggedIn: Observable<boolean>;
+  sub: Subscription;
 
   public modalRef: BsModalRef;
 
-  @ViewChild('childModal', { static: false }) childModal: ModalDirective;
+  @ViewChild('childModal', {static: false}) childModal: ModalDirective;
 
   constructor(private idle: Idle, private keepalive: Keepalive, 
-    private router: Router, private modalService: BsModalService, private appService: AppService) {
+    private router: Router, private modalService: BsModalService, private appService: AppService, private store: Store<fromRoot.State>) {
     // sets an idle timeout of 5 seconds, for testing purposes.
     idle.setIdle(15);
     // sets a timeout period of 5 seconds. after 10 seconds of inactivity, the user will be considered timed out.
@@ -74,6 +81,10 @@ export class AppComponent {
     })
 
     // this.reset();
+  }
+
+  ngOnInit() {
+   console.log("Is user logged in: {0}",fromRoot.selectIsLoggedIn);
   }
 
   reset() {

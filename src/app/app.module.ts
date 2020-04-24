@@ -1,5 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { StoreModule } from '@ngrx/store';
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
+import { reducers } from './+state/reducers';
+import { ApplicationEffects } from './+state/application/effects';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
@@ -31,7 +36,10 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     DateFnsModule.forRoot(),
     HttpClientModule,
     ModalModule.forRoot(),
-    FormsModule
+    FormsModule,
+    StoreModule.forRoot(reducers),
+    EffectsModule.forRoot([ApplicationEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 10})
   ],
   providers: [],
   bootstrap: [AppComponent]
